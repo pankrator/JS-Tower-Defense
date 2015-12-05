@@ -2,6 +2,10 @@
 
 var DEBUG = true;
 
+var mouse = {
+  x: 0,
+  y: 0
+};
 var canvas;
 var context;
 var renderer;
@@ -73,6 +77,14 @@ var update = function () {
   waveManager.update();
   defenseManager.update();
   towerManager.update();
+
+  for (var i = 0; i < enemies.length; i++) {
+    var enemy = enemies[i];
+    if (enemy.health < 1 && !enemy.isDead) {
+      enemy.isDead = true;
+      gameConfig.gold += 50 * waveManager.level;
+    }
+  }
   
   render();
   
@@ -95,6 +107,10 @@ var render = function () {
     renderer.renderPath(path, "blue");
   }
 
+  if (BUILD_TOOL == 1) {
+    renderTowerGrid();
+  }
+
   renderer.renderText(20, 20, "Level: " + waveManager.level);
   if (waveManager.isFinished()) {
     renderer.renderText(90, 20, "Finished");
@@ -102,13 +118,26 @@ var render = function () {
   renderer.renderText(20, 40, "Gold: " + gameConfig.gold);
 }
 
+var renderTowerGrid = function () {
+  for (var i = 0; i < canvas.width; i += 64) {
+    renderer.renderLine(i, 0, i, canvas.height, "red", 2);
+    renderer.renderLine(0, i, canvas.width, i, "red", 2);
+  }
+}
+
 var initializeHandlers = function () {
+  canvas.addEventListener("mousemove", handleMouseMove, true);
   canvas.addEventListener("click", handleMouseClick, true);
   window.addEventListener("keyup", handleKeyUp, true);
 }
 
 var SPACE_KEYKODE = 32;
 var L_KEYCODE = 76;
+
+var handleMouseMove = function (event) {
+  mouse.x = event.clientX;
+  mouse.y = event.clientY;
+}
 
 var handleKeyUp = function (event) {
   if (event.keyCode == SPACE_KEYKODE) {

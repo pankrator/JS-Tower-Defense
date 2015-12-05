@@ -14,13 +14,6 @@ DefenseManager.prototype.update = function () {
       tower.target = null;
     }
   }
-  
-  for (var i = 0; i < this.enemies.length; i++) {
-    var enemy = this.enemies[i];
-    if (enemy.health < 1) {
-      enemy.isDead = true;
-    }
-  }
 }
 
 DefenseManager.prototype.getClosestToFinishEnemy = function (enemies) {
