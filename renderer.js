@@ -45,6 +45,12 @@ Renderer.prototype.renderLine = function (fromx, fromy, tox, toy, style, width) 
   this.context.stroke();
 }
 
+Renderer.prototype.renderText = function (x, y, text) {
+  this.context.font = 'bold 16px Calibri';
+  this.context.fillStyle = INITIAL_FILL_STYLE;
+  this.context.fillText(text, x, y);
+}
+
 Renderer.prototype.renderPath = function (path, style) {
   var points = path.points;
   for (var i = 0; i < points.length - 1; i++) {

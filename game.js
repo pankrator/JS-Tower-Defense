@@ -14,6 +14,7 @@ var pathManager;
 var defenseManager;
 var physicsManager;
 var animationManager;
+var waveManager;
 
 window.onload = function () {
   canvas = document.getElementById("game");
@@ -21,15 +22,17 @@ window.onload = function () {
   initializeHandlers();
   renderer = new Renderer(canvas, context);
   
+  waveManager = new WavesManager();
+  enemies = waveManager.enemies;
   pathManager = new PathManager();
   defenseManager = new DefenseManager(towers, enemies);
   physicsManager = new PhysicsManager();
   towerManager = new TowerManager(towers);
   animationManager = new AnimationManager(renderer);
-  
+
   path = new Path([{
-   x: 30,
-   y: 30 
+   x: 60,
+   y: 140 
   },{
    x: 200,
    y: 40 
@@ -55,13 +58,7 @@ window.onload = function () {
    x: 1000,
    y: 500
   }]);
-  
-  enemies.push(new Enemy());
-  towers.push(new Tower(100, 150));
-  towers.push(new Tower(350, 160));
-  towers.push(new Tower(590, 160));
-  towers.push(new Tower(400, 400));
-  
+
   update();
 }
 
@@ -73,6 +70,7 @@ var update = function () {
     }
   }
   
+  waveManager.update();
   defenseManager.update();
   towerManager.update();
   
@@ -96,6 +94,12 @@ var render = function () {
   if (DEBUG) {
     renderer.renderPath(path, "blue");
   }
+
+  renderer.renderText(20, 20, "Level: " + waveManager.level);
+  if (waveManager.isFinished()) {
+    renderer.renderText(90, 20, "Finished");
+  }
+  renderer.renderText(20, 40, "Gold: " + gameConfig.gold);
 }
 
 var initializeHandlers = function () {
@@ -104,18 +108,33 @@ var initializeHandlers = function () {
 }
 
 var SPACE_KEYKODE = 32;
+var L_KEYCODE = 76;
 
 var handleKeyUp = function (event) {
   if (event.keyCode == SPACE_KEYKODE) {
     BUILD_TOOL = BUILD_TOOL >= 1 ? 0 : BUILD_TOOL + 1;
   }
+  if (event.keyCode == L_KEYCODE) {
+    if (waveManager.isFinished()) {
+      waveManager.finalizeLevel();
+    } else {
+      waveManager.startLevel(path);
+    }
+  }
 }
 
 var handleMouseClick = function (event) {
   if (TOOLS[BUILD_TOOL] == "ADD_ENEMY") {
-    enemies.push(new Enemy(event.clientX, event.clientY));
+    // enemies.push(new Enemy(event.clientX, event.clientY));
   } else if (TOOLS[BUILD_TOOL] == "CREATE_TOWER") {
-    towers.push(new Tower(event.clientX, event.clientY));
+    buildTower(event.clientX, event.clientY);
+  }
+}
+
+var buildTower = function (x, y) {
+  if (gameConfig.gold >= 120) {
+    towers.push(new Tower(x, y));
+    gameConfig.gold -= 120;
   }
 }
 
